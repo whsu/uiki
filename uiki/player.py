@@ -1,7 +1,7 @@
 import copy
 
-from .const import *
-from .board import *
+from util.const import *
+from util.board import *
 from .mcts import *
 
 class Player:
@@ -38,9 +38,7 @@ class Player:
         return True
 
     def gen_move(self, color):
-        k = self.komi if color==BLACK else -self.komi
-        m = MCTS(self.board, self.states_visited, color, self.playouts,
-                 lambda x: int(x>k), 1.0)
+        m = self.create_mcts_searcher(color)
         moves = m.search()
         move = moves[0]
         for move in moves:
@@ -61,6 +59,12 @@ class Player:
             self.states_visited.add(self.board.get_state())
             return move
         return RESIGN
+
+    def create_mcts_searcher(self, color):
+        k = self.komi if color==BLACK else -self.komi
+        m = MCTS(self.board, self.states_visited, color, self.playouts,
+                 lambda x: int(x>k), 1.0)
+        return m
 
     def place_pass(self, color):
         pass

@@ -1,4 +1,4 @@
-from .const import *
+from util.const import *
 
 GTP_VERSION = '2'
 GTP_PASS = 'pass'
@@ -188,4 +188,3 @@ class GtpPlayer:
 
             if command == 'quit':
                 break
-

@@ -1,7 +1,7 @@
 import unittest
 
 from util.board import *
-from uiki.mcts import *
+from omnomnom.atari_mcts import *
 
 class TestMCTS(unittest.TestCase):
     def test_search_1(self):
@@ -11,7 +11,7 @@ class TestMCTS(unittest.TestCase):
             num_sims = 10000
             score_func = lambda x: int(x>0)
             exp_const = 1.0
-            m = MCTS(board, visited, color, num_sims, score_func, exp_const)
+            m = AtariMCTS(board, visited, color, num_sims, score_func, exp_const, 1)
 
             self.assertEqual(m.search()[0], (1,1))
 
