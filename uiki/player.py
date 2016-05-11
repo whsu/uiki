@@ -9,8 +9,9 @@ class Player:
     __version__ = '0.1'
 
     def __init__(self, rows=19, cols=19, komi=6.5, suicide_allowed=False,
-                       playouts=1000):
+                       playouts=1000, pass_allowed=True):
         self.playouts = playouts
+        self.pass_allowed = pass_allowed
         self.new_game(rows, cols, komi, suicide_allowed)
 
     def new_game(self, rows, cols, komi=6.5, suicide_allowed=False):
@@ -43,7 +44,10 @@ class Player:
         move = moves[0]
         for move in moves:
             if move == PASS:
-                return PASS
+                if self.pass_allowed:
+                    return PASS
+                else:
+                    continue
 
             board = copy.deepcopy(self.board)
             captured = board.place(color, move[0], move[1])

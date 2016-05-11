@@ -4,11 +4,6 @@ from uiki.player import Player
 from omnomnom.atari_player import AtariPlayer
 from gtp.gtp_player import GtpPlayer
 
-PLAYERS = {
-    'uiki': Player,
-    'omnomnom': AtariPlayer,
-}
-
 parser = argparse.ArgumentParser(description="Start Uiki in GTP mode")
 parser.add_argument('-p', '--player', default='uiki',
                     help='Name of computer player')
