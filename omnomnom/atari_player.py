@@ -10,7 +10,8 @@ class AtariPlayer(Player):
 
     def __init__(self, num_caps=1, rows=19, cols=19, komi=6.5,
                        suicide_allowed=False, playouts=1000):
-        super(AtariPlayer, self).__init__(rows, cols, komi, suicide_allowed, playouts)
+        super(AtariPlayer, self).__init__(rows, cols, komi, suicide_allowed,
+                                          playouts, pass_allowed=False)
         self.num_caps = num_caps
 
     def gen_move(self, color):
