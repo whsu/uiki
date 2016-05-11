@@ -6,12 +6,6 @@ class AtariPlayer(Player):
     __name__ = 'omnomnom'
     __version__ = '0.1'
 
-    def __init__(self, board, visited, color, num_sims, score_func, exp_const,
-                       num_caps):
-        super(AtariMCTS, self).__init__(
-                  board, visited, color, num_sims, score_func, exp_const)
-        self.num_caps = num_caps
-
     def __init__(self, num_caps=1, rows=19, cols=19, komi=6.5,
                        suicide_allowed=False, playouts=1000):
         super(AtariPlayer, self).__init__(rows, cols, komi, suicide_allowed, playouts)
