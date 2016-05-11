@@ -1,6 +1,6 @@
 import unittest
 
-from uiki.board import *
+from util.board import *
 
 E = EMPTY
 B = BLACK

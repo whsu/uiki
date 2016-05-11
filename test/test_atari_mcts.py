@@ -1,6 +1,6 @@
 import unittest
 
-from uiki.board import *
+from util.board import *
 from omnomnom.atari_mcts import *
 
 class TestMCTS(unittest.TestCase):

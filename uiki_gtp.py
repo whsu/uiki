@@ -1,7 +1,7 @@
 import sys
 import argparse
 from uiki.player import Player
-from uiki.gtp import GtpPlayer
+from gtp.gtp_player import GtpPlayer
 
 parser = argparse.ArgumentParser(description="Start Uiki in GTP mode")
 parser.add_argument("-p", "--playouts", type=int, default=1000, help='Number of MCTS playouts.')

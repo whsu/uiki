@@ -1,7 +1,7 @@
 import copy
 
-from .const import *
-from .board import *
+from util.const import *
+from util.board import *
 from .mcts import *
 
 class Player:

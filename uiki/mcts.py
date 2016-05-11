@@ -2,8 +2,8 @@ import math
 import copy
 import random
 
-from .const import *
-from .board import *
+from util.const import *
+from util.board import *
 
 class Node:
     def __init__(self, color):
