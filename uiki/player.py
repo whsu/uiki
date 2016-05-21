@@ -8,16 +8,14 @@ class Player:
     __name__ = 'Uiki'
     __version__ = '0.2-dev'
 
-    def __init__(self, rows=19, cols=19, komi=6.5, suicide_allowed=False,
-                       playouts=1000, pass_allowed=True):
+    def __init__(self, playouts=1000):
         self.playouts = playouts
-        self.pass_allowed = pass_allowed
-        self.new_game(rows, cols, komi, suicide_allowed)
 
-    def new_game(self, rows, cols, komi=6.5, suicide_allowed=False):
+    def new_game(self, rows, cols, komi=6.5, suicide_allowed=False, pass_allowed=True):
         self.board = Board(rows, cols)
         self.komi = komi
         self.suicide_allowed = suicide_allowed
+        self.pass_allowed = pass_allowed
         self.states_visited = set()
 
     def reset_game(self):

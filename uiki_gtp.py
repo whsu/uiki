@@ -11,12 +11,18 @@ parser.add_argument('-n', '--numplayouts', type=int, default=1000,
                     help='Number of MCTS playouts.')
 parser.add_argument('-c', '--numcaps', type=int, default=1,
                     help='Number of captures to win capture go.')
+parser.add_argument('-s', '--size', type=int, default=19,
+                    help='Board size.')
+parser.add_argument('-k', '--komi', type=float, default=6.5,
+                    help='Komi.')
 args = parser.parse_args()
 
 if args.player.lower() == 'uiki':
     player = Player(playouts=args.numplayouts)
+    player.new_game(rows=args.size, cols=args.size, komi=args.size)
 elif args.player.lower() == 'omnomnom':
-    player = AtariPlayer(num_caps=args.numcaps, playouts=args.numplayouts)
+    player = AtariPlayer(playouts=args.numplayouts)
+    player.new_game(rows=args.size, cols=args.size, num_caps=args.numcaps, komi=args.size)
 else:
     raise ValueError('Unknown player {0}'.format(args.player))
 

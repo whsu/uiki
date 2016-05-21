@@ -8,7 +8,8 @@ E = EMPTY
 
 class TestAtariPlayer(unittest.TestCase):
     def test_place_move(self):
-        player = AtariPlayer(1, 2, 3, suicide_allowed=False)
+        player = AtariPlayer()
+        player.new_game(rows=2, cols=3, num_caps=1, suicide_allowed=False)
         result = player.place_move(BLACK, 1, 2)
 
         self.assertTrue(result)
@@ -29,7 +30,8 @@ class TestAtariPlayer(unittest.TestCase):
         self.assertEqual(player.states_visited, set(['.....X','....OX','..O.O.']))
 
     def test_resign(self):
-        player = AtariPlayer(2, 3, 3, suicide_allowed=False)
+        player = AtariPlayer()
+        player.new_game(rows=3, cols=3, num_caps=2, suicide_allowed=False)
         player.place_move(BLACK, 1, 2)
         player.place_move(WHITE, 2, 2)
         player.place_move(BLACK, 2, 1)
