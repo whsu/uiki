@@ -55,24 +55,24 @@ class MCTS:
         self.score_func = score_func
         self.exp_const = exp_const
         self.max_depth = board.size()*2
+        self.root = Node(self.color)
 
     def search(self):
-        root = Node(self.color)
-
         for k in range(self.num_sims):
-            board, node, moves, visited, outcome = self.simulate_tree(root)
+            board, node, moves, visited, outcome = self.simulate_tree()
             if outcome is None:
                 outcome = self.simulate_default(board, node.color, visited)
-            self.update_tree(root, moves, outcome)
+            self.update_tree(moves, outcome)
 
-        return root.select_moves(self.board, self.color, 0)
+        return self.root.select_moves(self.board, self.color, 0)
 
-    def simulate_tree(self, node):
+    def simulate_tree(self):
         board = copy.deepcopy(self.board)
         visited = copy.copy(self.visited)
         moves = []
         outcome = None
 
+        node = self.root
         while node.count > 0 and outcome is None:
             move = node.select_move(board, self.color, self.exp_const)
             moves.append(move)
@@ -117,10 +117,10 @@ class MCTS:
         else:
             return PASS
 
-    def update_tree(self, root, moves, outcome):
+    def update_tree(self, moves, outcome):
         value = self.score_func(outcome)
-        root.update(value)
-        node = root
+        self.root.update(value)
+        node = self.root
         for move in moves:
             node = node.children[move]
             node.update(value)
