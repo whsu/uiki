@@ -6,7 +6,7 @@ from .atari_mcts import *
 
 class AtariPlayer(Player):
     __name__ = 'omnomnom'
-    __version__ = '0.1'
+    __version__ = '0.2-dev'
 
     def __init__(self, num_caps=1, rows=19, cols=19, komi=6.5,
                        suicide_allowed=False, playouts=1000):

@@ -6,7 +6,7 @@ from .mcts import *
 
 class Player:
     __name__ = 'Uiki'
-    __version__ = '0.1'
+    __version__ = '0.2-dev'
 
     def __init__(self, rows=19, cols=19, komi=6.5, suicide_allowed=False,
                        playouts=1000, pass_allowed=True):
