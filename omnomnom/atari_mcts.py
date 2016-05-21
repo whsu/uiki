@@ -23,4 +23,4 @@ class AtariMCTS(MCTS):
         return outcome
 
     def win_outcome(self, color):
-        return self.board.size() if color==self.color else -self.board.size()
+        return self.board.size() if color==self.root.color else -self.board.size()
