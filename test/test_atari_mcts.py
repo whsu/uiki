@@ -11,9 +11,9 @@ class TestMCTS(unittest.TestCase):
             num_sims = 10000
             score_func = lambda x: int(x>0)
             exp_const = 1.0
-            m = AtariMCTS(board, visited, color, num_sims, score_func, exp_const, 1)
+            m = AtariMCTS(num_sims, score_func, exp_const, 1)
 
-            self.assertEqual(m.search()[0], (1,1))
+            self.assertEqual(m.search(board, visited, color)[0], (1,1))
 
 if __name__ == '__main__':
     unittest.main()

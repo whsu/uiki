@@ -38,7 +38,7 @@ class Player:
 
     def gen_move(self, color):
         m = self.create_mcts_searcher(color)
-        moves = m.search()
+        moves = m.search(self.board, self.states_visited, color)
         move = moves[0]
         for move in moves:
             if move == PASS:
@@ -64,8 +64,7 @@ class Player:
 
     def create_mcts_searcher(self, color):
         k = self.komi if color==BLACK else -self.komi
-        m = MCTS(self.board, self.states_visited, color, self.playouts,
-                 lambda x: int(x>k), 1.0)
+        m = MCTS(self.playouts, lambda x: int(x>k), 1.0)
         return m
 
     def place_pass(self, color):

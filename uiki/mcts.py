@@ -47,27 +47,28 @@ class Node:
         return sorted(values, key=lambda move:-values[move])
 
 class MCTS:
-    def __init__(self, board, visited, color, num_sims, score_func, exp_const):
-        self.board = board
-        self.visited = visited
+    def __init__(self, num_sims, score_func, exp_const):
         self.num_sims = num_sims
         self.score_func = score_func
         self.exp_const = exp_const
-        self.max_depth = board.size()*2
-        self.root = Node(color)
+        self.root = None
 
-    def search(self):
+    def search(self, board, visited, color):
+        max_depth = board.size()*2
+        if self.root is None or self.root.color != color:
+            self.root = Node(color)
+
         for k in range(self.num_sims):
-            board, node, moves, visited, outcome = self.simulate_tree()
+            b = copy.deepcopy(board)
+            v = copy.copy(visited)
+            node, moves, outcome = self.simulate_tree(b, v)
             if outcome is None:
-                outcome = self.simulate_default(board, node.color, visited)
+                outcome = self.simulate_default(b, node.color, v, max_depth)
             self.update_tree(moves, outcome)
 
-        return self.root.select_moves(self.board, self.root.color, 0)
+        return self.root.select_moves(board, self.root.color, 0)
 
-    def simulate_tree(self):
-        board = copy.deepcopy(self.board)
-        visited = copy.copy(self.visited)
+    def simulate_tree(self, board, visited):
         moves = []
         outcome = None
 
@@ -85,11 +86,11 @@ class MCTS:
 
             node = child
 
-        return board, node, moves, visited, outcome
+        return node, moves, outcome
 
-    def simulate_default(self, board, color, visited):
+    def simulate_default(self, board, color, visited, max_depth):
         outcome = None
-        while len(visited) < self.max_depth and outcome is None:
+        while len(visited) < max_depth and outcome is None:
             move = self.default_move(board, color)
             outcome = self.place_move(board, color, move, visited)
             color = opponent(color)
@@ -125,4 +126,4 @@ class MCTS:
             node.update(value)
 
     def repeat_outcome(self, color):
-        return -self.board.size() if color==self.root.color else self.board.size()
+        return -1 if color==self.root.color else 1
