@@ -13,8 +13,11 @@ class AtariPlayer(Player):
 
     def new_game(self, rows, cols, num_caps=1, komi=6.5,
                  suicide_allowed=False, pass_allowed=True):
-        super(AtariPlayer, self).new_game(rows, cols, komi, suicide_allowed, pass_allowed)
         self.num_caps = num_caps
+        super(AtariPlayer, self).new_game(rows, cols, komi, suicide_allowed, pass_allowed)
+
+    def init_mcts(self, color):
+        self.mcts = AtariMCTS(self.playouts, lambda x: int(x>0), 1.0, self.num_caps)
 
     def gen_move(self, color):
         oppcolor = opponent(color)
@@ -22,7 +25,3 @@ class AtariPlayer(Player):
             return RESIGN
 
         return super(AtariPlayer, self).gen_move(color)
-
-    def create_mcts_searcher(self, color):
-        m = AtariMCTS(self.playouts, lambda x: int(x>0), 1.0, self.num_caps)
-        return m

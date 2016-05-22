@@ -16,10 +16,15 @@ class Player:
         self.suicide_allowed = suicide_allowed
         self.pass_allowed = pass_allowed
         self.states_visited = set()
+        self.init_mcts(BLACK)
+
+    def init_mcts(self, color):
+        self.mcts = MCTS(self.playouts, lambda x: int(x>0), 1.0)
 
     def reset_game(self):
         self.board.reset()
         self.states_visited = set()
+        self.init_mcts(BLACK)
 
     def set_komi(self, komi):
         self.board.set_komi(komi)
@@ -33,12 +38,18 @@ class Player:
         self.board.place(color, row, col)
         newstate = self.board.get_state()
         self.states_visited.add(newstate)
+        self.mcts.move_root(color, (row, col))
         return True
 
     def gen_move(self, color):
-        m = self.create_mcts_searcher(color)
-        moves = m.search(self.board, self.states_visited, color)
-        move = moves[0]
+        moves = self.mcts.search(self.board, self.states_visited, color)
+        move =  self.make_move(color, moves)
+        if move != RESIGN:
+            self.mcts.move_root(color, move)
+
+        return move
+
+    def make_move(self, color, moves):
         for move in moves:
             if move == PASS:
                 if self.pass_allowed:
@@ -57,13 +68,9 @@ class Player:
                 continue
 
             self.board = board
-            self.states_visited.add(self.board.get_state())
+            self.states_visited.add(state)
             return move
         return RESIGN
-
-    def create_mcts_searcher(self, color):
-        m = MCTS(self.playouts, lambda x: int(x>0), 1.0)
-        return m
 
     def place_pass(self, color):
         pass

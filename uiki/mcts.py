@@ -127,3 +127,12 @@ class MCTS:
 
     def repeat_outcome(self, color):
         return -1 if color==self.root.color else 1
+
+    def move_root(self, color, move):
+        if self.root is None:
+            return
+
+        if color == self.root.color and move in self.root.children:
+            self.root = self.root.children[move]
+        else:
+            self.root = None
