@@ -7,9 +7,10 @@ def opponent(color):
         return BLACK
 
 class Board:
-    def __init__(self, rows, cols):
+    def __init__(self, rows, cols, komi=0.0):
         self.rows = rows
         self.cols = cols
+        self.set_komi(komi)
         self.reset()
 
     def __str__(self):
@@ -30,6 +31,10 @@ class Board:
         self.ko_move = None
         self.ko_color = None
 
+    def set_komi(self, komi):
+        '''Set the komi.'''
+        self.komi = komi
+
     def size(self):
         '''Number of intersections on the board.'''
         return self.rows * self.cols
@@ -40,7 +45,11 @@ class Board:
 
     def score(self, color):
         '''Return score for given color.'''
-        return self.captures[color] - self.captures[opponent(color)]
+        black_score = self.captures[BLACK] - self.captures[WHITE] - self.komi
+        if color == BLACK:
+            return black_score
+        else:
+            return -black_score
 
     def empty_positions(self):
         '''Iterator over empty positions.'''

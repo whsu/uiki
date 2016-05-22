@@ -12,8 +12,7 @@ class Player:
         self.playouts = playouts
 
     def new_game(self, rows, cols, komi=6.5, suicide_allowed=False, pass_allowed=True):
-        self.board = Board(rows, cols)
-        self.komi = komi
+        self.board = Board(rows, cols, komi)
         self.suicide_allowed = suicide_allowed
         self.pass_allowed = pass_allowed
         self.states_visited = set()
@@ -23,7 +22,7 @@ class Player:
         self.states_visited = set()
 
     def set_komi(self, komi):
-        self.komi = komi
+        self.board.set_komi(komi)
 
     def place_move(self, color, row, col):
         '''Place a given move on the board and return True if move is legal.
@@ -63,8 +62,7 @@ class Player:
         return RESIGN
 
     def create_mcts_searcher(self, color):
-        k = self.komi if color==BLACK else -self.komi
-        m = MCTS(self.playouts, lambda x: int(x>k), 1.0)
+        m = MCTS(self.playouts, lambda x: int(x>0), 1.0)
         return m
 
     def place_pass(self, color):

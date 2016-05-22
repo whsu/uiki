@@ -24,6 +24,5 @@ class AtariPlayer(Player):
         return super(AtariPlayer, self).gen_move(color)
 
     def create_mcts_searcher(self, color):
-        k = self.komi if color==BLACK else -self.komi
-        m = AtariMCTS(self.playouts, lambda x: int(x>k), 1.0, self.num_caps)
+        m = AtariMCTS(self.playouts, lambda x: int(x>0), 1.0, self.num_caps)
         return m

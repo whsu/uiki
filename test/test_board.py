@@ -224,5 +224,23 @@ class TestBoard(unittest.TestCase):
         b_moves = set(board.legal_moves(B, suicide_allowed=False))
         self.assertEqual(b_moves, set([(0,1),(1,2),(2,1)]))
 
+    def test_score(self):
+        board = Board(5, 5, komi=-7.0)
+        board.config = [ [E, E, B, W, E],
+                         [W, W, B, W, W],
+                         [B, B, B, B, B],
+                         [W, W, B, W, W],
+                         [E, W, B, W, E] ]
+
+        board.place(BLACK, 0, 0)
+        board.place(WHITE, 0, 1)
+
+        self.assertEqual(board.score(WHITE), 3.0)
+        self.assertEqual(board.score(BLACK), -3.0)
+
+        board.set_komi(6.0)
+        self.assertEqual(board.score(WHITE), 16.0)
+        self.assertEqual(board.score(BLACK), -16.0)
+
 if __name__ == '__main__':
     unittest.main()
