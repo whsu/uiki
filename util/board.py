@@ -79,8 +79,10 @@ class Board:
             yield pos
 
     def place(self, color, row, col):
-        '''Place a stone on the board. Does not check whether the move is legal.
-        '''
+        '''Place a stone on the board if the given position is empty.'''
+        if self.config[row][col] != EMPTY:
+            return {BLACK: set(), WHITE: set()}
+
         self.config[row][col] = color
         oppcolor = opponent(color)
 
