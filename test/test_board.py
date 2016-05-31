@@ -242,5 +242,16 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(board.score(WHITE), 16.0)
         self.assertEqual(board.score(BLACK), -16.0)
 
+    def test_block(self):
+        board = Board(5, 5)
+        board.place(B, 2, 2)
+        self.assertEqual(list(board.blocks.keys()), [(2,2)])
+        self.assertEqual(board.blocks[(2,2)].members, set([2,2]))
+        self.assertEqual(board.blocks[(2,2)].free_neighbors,
+                         set([(1,2),(2,1),(3,2),(2,3)]))
+        self.assertFalse(board.blocks[(2,2)].is_in_atari())
+        self.assertFalse(board.blocks[(2,2)].is_captured())
+
+
 if __name__ == '__main__':
     unittest.main()

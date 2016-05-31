@@ -6,6 +6,22 @@ def opponent(color):
     else:
         return BLACK
 
+class Block:
+    def __init__(self):
+        self.members = set()
+        self.free_neighbors = set()
+
+    def is_in_atari(self):
+        return len(self.free_neighbors) == 1
+
+    def is_captured(self):
+        return len(self.free_neighbors) == 0
+
+    def add(self, pos, free_neighbors):
+        self.members.add(pos)
+        self.free_neighbors.pop(pos)
+        self.free_neighbors.update(free_neighbors)
+
 class Board:
     def __init__(self, rows, cols, komi=0.0):
         self.rows = rows
@@ -30,6 +46,8 @@ class Board:
         self.captures = {BLACK: 0, WHITE: 0}
         self.ko_move = None
         self.ko_color = None
+
+        self.blocks = {}
 
     def set_komi(self, komi):
         '''Set the komi.'''
@@ -179,3 +197,31 @@ class Board:
     def remove_block(self, block):
         for i, j in block:
             self.config[i][j] = EMPTY
+
+    def remove_stone(self, pos):
+        row, col = pos
+        self.config[row][col] = EMPTY
+        self.block_map.pop(pos)
+        for npos in self.neighbors(row, col):
+            if npos in self.blocks:
+                self.blocks[npos].free_neighbors.add(pos)
+
+    def add_stone(self, color, pos):
+        row, col = pos
+        oppcolor = opponent(color)
+        for npos in self.neighbors(row, col):
+            if self[npos] == color:
+                if pos not in self.blocks:
+                    self.blocks[npos].add(pos, filter(lambda p:self[p]==EMPTY,
+                                                      self.neighbors(row, col)))
+                elif self.blocks[npos] != self.blocks[pos]:
+                    self.join_blocks(npos, pos)
+            elif self[npos] == oppcolor:
+                self.blocks[npos].free_neighbors.pop(pos)
+
+    def join_blocks(self, p1, p2):
+        b1 = self.blocks[p1]
+        b2 = self.blocks[p2]
+        b1.members.update(b2.members)
+        b1.free_neighbors.update(b2.free_neighbors).difference_update(b1.members)
+        self.blocks[p2] = b1
