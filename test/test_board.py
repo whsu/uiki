@@ -7,31 +7,6 @@ B = BLACK
 W = WHITE
 
 class TestBoard(unittest.TestCase):
-    def test_get_block(self):
-        board = Board(5, 5)
-        board.config = [ [E, E, B, W, E],
-                         [W, W, B, W, W],
-                         [B, B, B, B, B],
-                         [W, W, B, W, W],
-                         [E, W, B, W, E] ]
-
-        self.assertEqual(board.get_block(0, 0), set())
-        self.assertEqual(board.get_block(1, 0), set([(1,0),(1,1)]))
-        self.assertEqual(board.get_block(2, 2), set([(0,2),(1,2),(2,0),(2,1),(2,2),
-                                                     (2,3),(2,4),(3,2),(4,2)]))
-
-    def test_has_liberty(self):
-        board = Board(5, 5)
-        board.config = [ [E, W, B, W, E],
-                         [W, W, B, W, W],
-                         [B, B, B, B, B],
-                         [W, W, B, W, W],
-                         [E, W, B, W, E] ]
-
-        self.assertTrue(board.has_liberty(set([(1,0),(1,1),(0,1)])))
-        self.assertFalse(board.has_liberty(set([(0,2),(1,2),(2,0),(2,1),(2,2),
-                                                (2,3),(2,4),(3,2),(4,2)])))
-
     def test_place_1(self):
         board = Board(5, 5)
         board.config = [ [E, E, B, W, E],
@@ -40,27 +15,23 @@ class TestBoard(unittest.TestCase):
                          [W, W, B, W, W],
                          [E, W, B, W, E] ]
 
-        captured = board.place(BLACK, 0, 0)
+        board.place(BLACK, 0, 0)
         self.assertEqual(board.config, [ [B, E, B, W, E],
                                          [W, W, B, W, W],
                                          [B, B, B, B, B],
                                          [W, W, B, W, W],
                                          [E, W, B, W, E]])
         self.assertEqual(board.captures, {BLACK: 0, WHITE: 0})
-        self.assertEqual(captured, {BLACK: set(), WHITE: set()})
         self.assertIsNone(board.ko_move)
         self.assertIsNone(board.ko_color)
 
-        captured = board.place(WHITE, 0, 1)
+        board.place(WHITE, 0, 1)
         self.assertEqual(board.config, [ [E, W, E, W, E],
                                          [W, W, E, W, W],
                                          [E, E, E, E, E],
                                          [W, W, E, W, W],
                                          [E, W, E, W, E]])
         self.assertEqual(board.captures, {BLACK: 0, WHITE: 10})
-        self.assertEqual(captured, {BLACK: set([(0,0),(0,2),(1,2),(2,0),(2,1),
-                                                (2,2),(2,3),(2,4),(3,2),(4,2)]),
-                                    WHITE: set()})
         self.assertIsNone(board.ko_move)
         self.assertIsNone(board.ko_color)
 
@@ -72,27 +43,23 @@ class TestBoard(unittest.TestCase):
                          [W, E, B, W, W],
                          [W, W, B, W, E] ]
 
-        captured = board.place(WHITE, 3, 1)
+        board.place(WHITE, 3, 1)
         self.assertEqual(board.config, [ [E, E, B, W, E],
                                          [W, W, B, W, W],
                                          [B, B, B, B, B],
                                          [E, E, B, W, W],
                                          [E, E, B, W, E]])
         self.assertEqual(board.captures, {BLACK: 4, WHITE: 0})
-        self.assertEqual(captured, {BLACK: set(),
-                                    WHITE: set([(3,0),(4,0),(3,1),(4,1)])})
         self.assertIsNone(board.ko_move)
         self.assertIsNone(board.ko_color)
 
-        captured = board.place(BLACK, 4, 4)
+        board.place(BLACK, 4, 4)
         self.assertEqual(board.config, [ [E, E, B, W, E],
                                          [W, W, B, W, W],
                                          [B, B, B, B, B],
                                          [E, E, B, E, E],
                                          [E, E, B, E, B]])
         self.assertEqual(board.captures, {BLACK: 7, WHITE: 0})
-        self.assertEqual(captured, {BLACK: set(),
-                                    WHITE: set([(3,3),(3,4),(4,3)])})
         self.assertIsNone(board.ko_move)
         self.assertIsNone(board.ko_color)
 
@@ -128,43 +95,6 @@ class TestBoard(unittest.TestCase):
         board.place(W, 2, 1)
         self.assertIsNone(board.ko_move)
         self.assertIsNone(board.ko_color)
-
-    def test_try_place_1(self):
-        board = Board(5, 5)
-        board.config = [ [B, E, B, W, E],
-                         [W, W, B, W, W],
-                         [B, B, B, B, B],
-                         [W, W, B, W, W],
-                         [E, W, B, W, E] ]
-
-        captured = board.try_place(WHITE, 0, 1)
-        self.assertEqual(board.config, [ [B, E, B, W, E],
-                                         [W, W, B, W, W],
-                                         [B, B, B, B, B],
-                                         [W, W, B, W, W],
-                                         [E, W, B, W, E]])
-        self.assertEqual(board.captures, {BLACK: 0, WHITE: 0})
-        self.assertEqual(captured, {BLACK: set([(0,0),(0,2),(1,2),(2,0),(2,1),
-                                                (2,2),(2,3),(2,4),(3,2),(4,2)]),
-                                    WHITE: set()})
-
-    def test_try_place_2(self):
-        board = Board(5, 5)
-        board.config = [ [E, E, B, W, E],
-                         [W, W, B, W, W],
-                         [B, B, B, B, B],
-                         [W, E, B, W, W],
-                         [W, W, B, W, E] ]
-
-        captured = board.try_place(WHITE, 3, 1)
-        self.assertEqual(board.config, [ [E, E, B, W, E],
-                                         [W, W, B, W, W],
-                                         [B, B, B, B, B],
-                                         [W, E, B, W, W],
-                                         [W, W, B, W, E]])
-        self.assertEqual(board.captures, {BLACK: 0, WHITE: 0})
-        self.assertEqual(captured, {BLACK: set(),
-                                    WHITE: set([(3,0),(4,0),(3,1),(4,1)])})
 
     def test_get_state(self):
         board = Board(5, 5)
