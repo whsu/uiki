@@ -242,16 +242,67 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(board.score(WHITE), 16.0)
         self.assertEqual(board.score(BLACK), -16.0)
 
-    def test_block(self):
+    def test_blocks_1(self):
         board = Board(5, 5)
         board.place(B, 2, 2)
-        self.assertEqual(list(board.blocks.keys()), [(2,2)])
-        self.assertEqual(board.blocks[(2,2)].members, set([2,2]))
+        self.assertEqual(set(board.blocks.keys()), set([(2,2)]))
+        self.assertEqual(board.blocks[(2,2)].members, set([(2,2)]))
         self.assertEqual(board.blocks[(2,2)].free_neighbors,
                          set([(1,2),(2,1),(3,2),(2,3)]))
         self.assertFalse(board.blocks[(2,2)].is_in_atari())
         self.assertFalse(board.blocks[(2,2)].is_captured())
 
+    def test_blocks_2(self):
+        board = Board(5, 5)
+        board.place(B, 2, 2)
+        board.place(W, 2, 3)
+        self.assertEqual(set(board.blocks.keys()), set([(2,2),(2,3)]))
+        self.assertEqual(board.blocks[(2,2)].members, set([(2,2)]))
+        self.assertEqual(board.blocks[(2,2)].free_neighbors,
+                         set([(1,2),(2,1),(3,2)]))
+        self.assertEqual(board.blocks[(2,3)].members, set([2,3]))
+        self.assertEqual(board.blocks[(2,3)].free_neighbors,
+                         set([(1,3),(2,4),(3,3)]))
+        self.assertFalse(board.blocks[(2,2)].is_in_atari())
+        self.assertFalse(board.blocks[(2,2)].is_captured())
+        self.assertFalse(board.blocks[(2,3)].is_in_atari())
+        self.assertFalse(board.blocks[(2,3)].is_captured())
+
+    def test_blocks_3(self):
+        board = Board(5, 5)
+        board.place(B, 2, 2)
+        board.place(W, 2, 3)
+        board.place(B, 1, 2)
+        self.assertEqual(set(board.blocks.keys()), set([(2,2),(2,3),(1,2)]))
+        self.assertEqual(board.blocks[(2,2)], board.blocks[(1,2)])
+        self.assertEqual(board.blocks[(2,2)].members, set([(2,2),(1,2)]))
+        self.assertEqual(board.blocks[(2,2)].free_neighbors,
+                         set([(0,2),(1,3),(1,1),(2,1),(3,2)]))
+        self.assertEqual(board.blocks[(2,3)].members, set([2,3]))
+        self.assertEqual(board.blocks[(2,3)].free_neighbors,
+                         set([(1,3),(2,4),(3,3)]))
+        self.assertFalse(board.blocks[(2,2)].is_in_atari())
+        self.assertFalse(board.blocks[(2,2)].is_captured())
+        self.assertFalse(board.blocks[(2,3)].is_in_atari())
+        self.assertFalse(board.blocks[(2,3)].is_captured())
+
+    def test_blocks_4(self):
+        board = Board(5, 5)
+        board.place(B, 2, 2)
+        board.place(W, 2, 3)
+        board.place(B, 3, 3)
+        board.place(B, 1, 3)
+        self.assertTrue(board.blocks[(2,3)].is_in_atari())
+        self.assertFalse(board.blocks[(2,3)].is_captured())
+
+    def test_blocks_5(self):
+        board = Board(5, 5)
+        board.place(B, 2, 2)
+        board.place(W, 2, 3)
+        board.place(B, 3, 3)
+        board.place(B, 1, 3)
+        board.place(B, 2, 4)
+        self.assertNotIn((2,3), board.blocks)
 
 if __name__ == '__main__':
     unittest.main()
