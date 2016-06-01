@@ -117,6 +117,10 @@ class Board:
         '''Place a stone on the board if the given position is empty.'''
         if self.config[row][col] != EMPTY:
             return
+        if (row, col) == PASS:
+            self.ko_color = None
+            self.ko_move = None
+            return
 
         pos = (row, col)
         oppcolor = opponent(color)
