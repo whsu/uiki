@@ -169,6 +169,7 @@ class Board:
             if self[npos] == color:
                 if pos not in self.blocks:
                     self.blocks[npos].add(pos, self.free_neighbors(row, col))
+                    self.blocks[pos] = self.blocks[npos]
                 elif self.blocks[npos] != self.blocks[pos]:
                     self.join_blocks(npos, pos)
             elif self[npos] == oppcolor:
