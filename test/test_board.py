@@ -190,7 +190,7 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(board.blocks[(2,2)].members, set([(2,2)]))
         self.assertEqual(board.blocks[(2,2)].free_neighbors,
                          set([(1,2),(2,1),(3,2)]))
-        self.assertEqual(board.blocks[(2,3)].members, set([2,3]))
+        self.assertEqual(board.blocks[(2,3)].members, set([(2,3)]))
         self.assertEqual(board.blocks[(2,3)].free_neighbors,
                          set([(1,3),(2,4),(3,3)]))
         self.assertFalse(board.blocks[(2,2)].is_in_atari())
@@ -208,7 +208,7 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(board.blocks[(2,2)].members, set([(2,2),(1,2)]))
         self.assertEqual(board.blocks[(2,2)].free_neighbors,
                          set([(0,2),(1,3),(1,1),(2,1),(3,2)]))
-        self.assertEqual(board.blocks[(2,3)].members, set([2,3]))
+        self.assertEqual(board.blocks[(2,3)].members, set([(2,3)]))
         self.assertEqual(board.blocks[(2,3)].free_neighbors,
                          set([(1,3),(2,4),(3,3)]))
         self.assertFalse(board.blocks[(2,2)].is_in_atari())
