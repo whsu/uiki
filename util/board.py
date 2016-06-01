@@ -110,7 +110,8 @@ class Board:
         for npos in self.neighbors(row, col):
             if npos in self.blocks and self.blocks[npos].is_captured():
                 captured.append(self.blocks[npos].members)
-                self.remove_block(self.blocks[npos])
+                self.remove_block(npos)
+
 
         self.update_ko(oppcolor, pos, captured)
 
@@ -118,7 +119,7 @@ class Board:
             self.captures[color] += len(captured)
         elif self.blocks[pos].is_captured():
             self.captures[oppcolor] += len(self.blocks[pos].members)
-            self.remove_block(self.blocks[pos])
+            self.remove_block(pos)
 
     def update_ko(self, oppcolor, pos, captured):
         if len(self.blocks[pos].members) == 1 and \
@@ -151,14 +152,14 @@ class Board:
     def remove_stone(self, row, col):
         pos = (row, col)
         self.config[row][col] = EMPTY
-        self.blocks.remove(pos)
+        self.blocks.pop(pos)
         for npos in self.neighbors(row, col):
             if npos in self.blocks:
                 self.blocks[npos].free_neighbors.add(pos)
 
     def remove_block(self, pos):
         if pos in self.blocks:
-            for i, j in self.blocks[pos]:
+            for i, j in self.blocks[pos].members:
                 self.remove_stone(i, j)
 
     def add_stone(self, color, row, col):
