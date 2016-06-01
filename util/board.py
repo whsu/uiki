@@ -86,8 +86,8 @@ class Board:
                 if self.config[row][col] == EMPTY:
                     yield row, col
 
-    def legal_moves(self, color, suicide_allowed=False):
-        '''Iterator over legal moves for given color.
+    def is_legal(self, color, row, col, suicide_allowed=False):
+        '''Check if a move is legal.
 
         Scenarios covered:
         - Simple ko : not legal
@@ -95,16 +95,23 @@ class Board:
         - One-stone suicide : not legal
         - Multi-stone suicide : legal if suicide_allowed=True
         '''
+        if (row, col) == self.ko_move and color == self.ko_color:
+            return False
         oppcolor = opponent(color)
-        for pos in self.empty_positions():
-            if pos == self.ko_move and color == self.ko_color:
-                continue
-            if EMPTY not in self.neighbors(pos[0], pos[1]):
-                captured = self.try_place(color, pos[0], pos[1])
-                numcapped = len(captured[color])
-                if numcapped == 1 or (numcapped > 1 and not suicide_allowed):
-                    continue
-            yield pos
+        for npos in self.neighbors(row, col):
+            if self[npos] == EMPTY:
+                return True
+            if self[npos] == oppcolor and self.blocks[npos].is_in_atari():
+                return True
+            if self[npos] == color:
+                if suicide_allowed or not self.blocks[npos].is_in_atari():
+                    return True
+        return False
+
+    def legal_moves(self, color, suicide_allowed=False):
+        '''Iterator over legal moves for given color.'''
+        return filter(lambda p:self.is_legal(color, p[0], p[1], suicide_allowed),
+                      self.empty_positions())
 
     def place(self, color, row, col):
         '''Place a stone on the board if the given position is empty.'''
