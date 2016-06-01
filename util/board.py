@@ -26,10 +26,11 @@ class Block:
         self.free_neighbors.update(free_neighbors)
 
 class Board:
-    def __init__(self, rows, cols, komi=0.0):
+    def __init__(self, rows, cols, komi=0.0, suicide_allowed=False):
         self.rows = rows
         self.cols = cols
         self.set_komi(komi)
+        self.suicide_allowed = suicide_allowed
         self.reset()
 
     def __str__(self):
@@ -55,6 +56,10 @@ class Board:
     def set_komi(self, komi):
         '''Set the komi.'''
         self.komi = komi
+
+    def allow_suicide(self, allowed):
+        '''Change setting for whether multi-stone suicide is allowed.'''
+        self.suicide_allowed = allowed
 
     def set_config(self, config):
         self.reset()
@@ -86,7 +91,7 @@ class Board:
                 if self.config[row][col] == EMPTY:
                     yield row, col
 
-    def is_legal(self, color, row, col, suicide_allowed=False):
+    def is_legal(self, color, row, col):
         '''Check if a move is legal.
 
         Scenarios covered:
@@ -104,13 +109,13 @@ class Board:
             if self[npos] == oppcolor and self.blocks[npos].is_in_atari():
                 return True
             if self[npos] == color:
-                if suicide_allowed or not self.blocks[npos].is_in_atari():
+                if self.suicide_allowed or not self.blocks[npos].is_in_atari():
                     return True
         return False
 
-    def legal_moves(self, color, suicide_allowed=False):
+    def legal_moves(self, color):
         '''Iterator over legal moves for given color.'''
-        return filter(lambda p:self.is_legal(color, p[0], p[1], suicide_allowed),
+        return filter(lambda p:self.is_legal(color, p[0], p[1]),
                       self.empty_positions())
 
     def place(self, color, row, col):

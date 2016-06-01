@@ -109,47 +109,49 @@ class TestBoard(unittest.TestCase):
     def test_legal_moves(self):
         board = Board(3, 3)
 
-        moves = set(board.legal_moves(B, suicide_allowed=False))
+        moves = set(board.legal_moves(B))
         self.assertEqual(moves, set([(0,0),(0,1),(0,2),
                                      (1,0),(1,1),(1,2),
                                      (2,0),(2,1),(2,2)]))
 
         board.place(B, 2, 2)
-        moves = set(board.legal_moves(W, suicide_allowed=False))
+        moves = set(board.legal_moves(W))
         self.assertEqual(moves, set([(0,0),(0,1),(0,2),
                                      (1,0),(1,1),(1,2),
                                      (2,0),(2,1)]))
 
         board.place(W, 2, 1)
-        moves = set(board.legal_moves(B, suicide_allowed=False))
+        moves = set(board.legal_moves(B))
         self.assertEqual(moves, set([(0,0),(0,1),(0,2),
                                      (1,0),(1,1),(1,2),
                                      (2,0)]))
 
         board.place(B, 1, 1)
         board.place(W, 1, 0)
-        moves = set(board.legal_moves(B, suicide_allowed=False))
+        moves = set(board.legal_moves(B))
         self.assertEqual(moves, set([(0,0),(0,1),(0,2),(1,2),(2,0)]))
 
         board.place(B, 2, 0)
-        w_moves = set(board.legal_moves(W, suicide_allowed=False))
+        w_moves = set(board.legal_moves(W))
         self.assertEqual(w_moves, set([(0,0),(0,1),(0,2),(1,2)]))
-        b_moves = set(board.legal_moves(B, suicide_allowed=False))
+        b_moves = set(board.legal_moves(B))
         self.assertEqual(b_moves, set([(0,0),(0,1),(0,2),(1,2),(2,1)]))
 
         board.place(W, 0, 0)
-        w_moves = set(board.legal_moves(W, suicide_allowed=False))
+        w_moves = set(board.legal_moves(W))
         self.assertEqual(w_moves, set([(0,1),(0,2),(1,2),(2,1)]))
-        b_moves = set(board.legal_moves(B, suicide_allowed=False))
+        b_moves = set(board.legal_moves(B))
         self.assertEqual(b_moves, set([(0,1),(0,2),(1,2),(2,1)]))
 
         board.place(B, 0, 2)
-        w_moves = set(board.legal_moves(W, suicide_allowed=False))
+        w_moves = set(board.legal_moves(W))
         self.assertEqual(w_moves, set([(2,1)]))
-        w_moves_suicide = set(board.legal_moves(W, suicide_allowed=True))
-        self.assertEqual(w_moves_suicide, set([(0,1),(2,1)]))
-        b_moves = set(board.legal_moves(B, suicide_allowed=False))
+        b_moves = set(board.legal_moves(B))
         self.assertEqual(b_moves, set([(0,1),(1,2),(2,1)]))
+
+        board.allow_suicide(True)
+        w_moves_suicide = set(board.legal_moves(W))
+        self.assertEqual(w_moves_suicide, set([(0,1),(2,1)]))
 
     def test_score(self):
         board = Board(5, 5, komi=-7.0)

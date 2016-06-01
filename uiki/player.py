@@ -12,8 +12,7 @@ class Player:
         self.playouts = playouts
 
     def new_game(self, rows, cols, komi=6.5, suicide_allowed=False, pass_allowed=True):
-        self.board = Board(rows, cols, komi)
-        self.suicide_allowed = suicide_allowed
+        self.board = Board(rows, cols, komi, suicide_allowed)
         self.pass_allowed = pass_allowed
         self.states_visited = set()
         self.init_mcts(BLACK)
@@ -58,10 +57,7 @@ class Player:
                     continue
 
             board = copy.deepcopy(self.board)
-            captured = board.place(color, move[0], move[1])
-
-            if len(captured[color]) > 0 and not self.suicide_allowed:
-                continue
+            board.place(color, move[0], move[1])
 
             state = board.get_state()
             if state in self.states_visited:
