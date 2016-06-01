@@ -11,6 +11,9 @@ class Block:
         self.members = set()
         self.free_neighbors = set()
 
+    def __repr__(self):
+        return "Block(M={0.members}, N={0.free_neighbors})".format(self)
+
     def is_in_atari(self):
         return len(self.free_neighbors) == 1
 
@@ -52,6 +55,13 @@ class Board:
     def set_komi(self, komi):
         '''Set the komi.'''
         self.komi = komi
+
+    def set_config(self, config):
+        self.reset()
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if config[i][j] != EMPTY:
+                    self.place(config[i][j], i, j)
 
     def size(self):
         '''Number of intersections on the board.'''
@@ -172,7 +182,7 @@ class Board:
                     self.blocks[pos] = self.blocks[npos]
                 elif self.blocks[npos] != self.blocks[pos]:
                     self.join_blocks(npos, pos)
-            elif self[npos] == oppcolor:
+            elif self[npos] == oppcolor and pos in self.blocks[npos].free_neighbors:
                 self.blocks[npos].free_neighbors.remove(pos)
 
         if pos not in self.blocks:
@@ -180,10 +190,11 @@ class Board:
             self.blocks[pos].members.add(pos)
             self.blocks[pos].free_neighbors.update(self.free_neighbors(pos[0], pos[1]))
 
-
     def join_blocks(self, p1, p2):
         b1 = self.blocks[p1]
         b2 = self.blocks[p2]
         b1.members.update(b2.members)
-        b1.free_neighbors.update(b2.free_neighbors).difference_update(b1.members)
-        self.blocks[p2] = b1
+        b1.free_neighbors.update(b2.free_neighbors)
+        b1.free_neighbors.difference_update(b1.members)
+        for p in b2.members:
+            self.blocks[p] = b1

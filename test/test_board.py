@@ -9,11 +9,12 @@ W = WHITE
 class TestBoard(unittest.TestCase):
     def test_place_1(self):
         board = Board(5, 5)
-        board.config = [ [E, E, B, W, E],
-                         [W, W, B, W, W],
-                         [B, B, B, B, B],
-                         [W, W, B, W, W],
-                         [E, W, B, W, E] ]
+        config = [ [E, E, B, W, E],
+                   [W, W, B, W, W],
+                   [B, B, B, B, B],
+                   [W, W, B, W, W],
+                   [E, W, B, W, E] ]
+        board.set_config(config)
 
         board.place(BLACK, 0, 0)
         self.assertEqual(board.config, [ [B, E, B, W, E],
@@ -37,11 +38,12 @@ class TestBoard(unittest.TestCase):
 
     def test_place_2(self):
         board = Board(5, 5)
-        board.config = [ [E, E, B, W, E],
-                         [W, W, B, W, W],
-                         [B, B, B, B, B],
-                         [W, E, B, W, W],
-                         [W, W, B, W, E] ]
+        config = [ [E, E, B, W, E],
+                   [W, W, B, W, W],
+                   [B, B, B, B, B],
+                   [W, E, B, W, W],
+                   [W, W, B, W, E] ]
+        board.set_config(config)
 
         board.place(WHITE, 3, 1)
         self.assertEqual(board.config, [ [E, E, B, W, E],
@@ -65,9 +67,6 @@ class TestBoard(unittest.TestCase):
 
     def test_place_3(self):
         board = Board(3, 3)
-        board.config = [ [E, E, E],
-                         [E, E, E],
-                         [E, E, E] ]
 
         board.place(B, 2, 2)
         board.place(W, 2, 1)
@@ -98,19 +97,17 @@ class TestBoard(unittest.TestCase):
 
     def test_get_state(self):
         board = Board(5, 5)
-        board.config = [ [E, E, B, W, E],
-                         [W, W, B, W, W],
-                         [B, B, B, B, B],
-                         [W, E, B, W, W],
-                         [W, W, B, W, E] ]
+        config = [ [E, E, B, W, E],
+                   [W, W, B, W, W],
+                   [B, B, B, B, B],
+                   [W, E, B, W, W],
+                   [W, W, B, W, E] ]
+        board.set_config(config)
 
         self.assertEqual(board.get_state(), '..XO.OOXOOXXXXXO.XOOOOXO.')
 
     def test_legal_moves(self):
         board = Board(3, 3)
-        board.config = [ [E, E, E],
-                         [E, E, E],
-                         [E, E, E] ]
 
         moves = set(board.legal_moves(B, suicide_allowed=False))
         self.assertEqual(moves, set([(0,0),(0,1),(0,2),
@@ -156,11 +153,12 @@ class TestBoard(unittest.TestCase):
 
     def test_score(self):
         board = Board(5, 5, komi=-7.0)
-        board.config = [ [E, E, B, W, E],
-                         [W, W, B, W, W],
-                         [B, B, B, B, B],
-                         [W, W, B, W, W],
-                         [E, W, B, W, E] ]
+        config = [ [E, E, B, W, E],
+                   [W, W, B, W, W],
+                   [B, B, B, B, B],
+                   [W, W, B, W, W],
+                   [E, W, B, W, E] ]
+        board.set_config(config)
 
         board.place(BLACK, 0, 0)
         board.place(WHITE, 0, 1)
