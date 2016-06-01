@@ -109,9 +109,8 @@ class Board:
         captured = []
         for npos in self.neighbors(row, col):
             if npos in self.blocks and self.blocks[npos].is_captured():
-                captured.append(self.blocks[npos].members)
+                captured.extend(self.blocks[npos].members)
                 self.remove_block(npos)
-
 
         self.update_ko(oppcolor, pos, captured)
 
@@ -123,7 +122,7 @@ class Board:
 
     def update_ko(self, oppcolor, pos, captured):
         if len(self.blocks[pos].members) == 1 and \
-           len(self.blocks[pos].free_neighbors) == 0 and \
+           len(self.blocks[pos].free_neighbors) == 1 and \
            len(captured) == 1:
             self.ko_color = oppcolor
             self.ko_move = captured[0]
