@@ -118,7 +118,7 @@ class Board:
 
         captured = []
         for npos in self.neighbors(row, col):
-            if npos in self.blocks and self.blocks[npos].is_captured():
+            if self[row,col] == oppcolor and self.blocks[npos].is_captured():
                 captured.extend(self.blocks[npos].members)
                 self.remove_block(npos)
 
