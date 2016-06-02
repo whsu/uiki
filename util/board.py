@@ -6,11 +6,31 @@ def opponent(color):
     else:
         return BLACK
 
+class Block:
+    def __init__(self):
+        self.members = set()
+        self.free_neighbors = set()
+
+    def __repr__(self):
+        return "Block(M={0.members}, N={0.free_neighbors})".format(self)
+
+    def is_in_atari(self):
+        return len(self.free_neighbors) == 1
+
+    def is_captured(self):
+        return len(self.free_neighbors) == 0
+
+    def add(self, pos, free_neighbors):
+        self.members.add(pos)
+        self.free_neighbors.remove(pos)
+        self.free_neighbors.update(free_neighbors)
+
 class Board:
-    def __init__(self, rows, cols, komi=0.0):
+    def __init__(self, rows, cols, komi=0.0, suicide_allowed=False):
         self.rows = rows
         self.cols = cols
         self.set_komi(komi)
+        self.suicide_allowed = suicide_allowed
         self.reset()
 
     def __str__(self):
@@ -31,9 +51,22 @@ class Board:
         self.ko_move = None
         self.ko_color = None
 
+        self.blocks = {}
+
     def set_komi(self, komi):
         '''Set the komi.'''
         self.komi = komi
+
+    def allow_suicide(self, allowed):
+        '''Change setting for whether multi-stone suicide is allowed.'''
+        self.suicide_allowed = allowed
+
+    def set_config(self, config):
+        self.reset()
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if config[i][j] != EMPTY:
+                    self.place(config[i][j], i, j)
 
     def size(self):
         '''Number of intersections on the board.'''
@@ -58,8 +91,8 @@ class Board:
                 if self.config[row][col] == EMPTY:
                     yield row, col
 
-    def legal_moves(self, color, suicide_allowed=False):
-        '''Iterator over legal moves for given color.
+    def is_legal(self, color, row, col):
+        '''Check if a move is legal.
 
         Scenarios covered:
         - Simple ko : not legal
@@ -67,79 +100,61 @@ class Board:
         - One-stone suicide : not legal
         - Multi-stone suicide : legal if suicide_allowed=True
         '''
+        if (row, col) == self.ko_move and color == self.ko_color:
+            return False
         oppcolor = opponent(color)
-        for pos in self.empty_positions():
-            if pos == self.ko_move and color == self.ko_color:
-                continue
-            if EMPTY not in self.neighbors(pos[0], pos[1]):
-                captured = self.try_place(color, pos[0], pos[1])
-                numcapped = len(captured[color])
-                if numcapped == 1 or (numcapped > 1 and not suicide_allowed):
-                    continue
-            yield pos
+        for npos in self.neighbors(row, col):
+            if self[npos] == EMPTY:
+                return True
+            if self[npos] == oppcolor and self.blocks[npos].is_in_atari():
+                return True
+            if self[npos] == color:
+                if self.suicide_allowed or not self.blocks[npos].is_in_atari():
+                    return True
+        return False
+
+    def legal_moves(self, color):
+        '''Iterator over legal moves for given color.'''
+        return filter(lambda p:self.is_legal(color, p[0], p[1]),
+                      self.empty_positions())
 
     def place(self, color, row, col):
         '''Place a stone on the board if the given position is empty.'''
         if self.config[row][col] != EMPTY:
-            return {BLACK: set(), WHITE: set()}
+            return
+        if (row, col) == PASS:
+            self.ko_color = None
+            self.ko_move = None
+            return
 
-        self.config[row][col] = color
+        pos = (row, col)
         oppcolor = opponent(color)
 
-        captured = self.try_place(color, row, col)
+        self.add_stone(color, row, col)
 
-        self.capture_block(BLACK, captured[BLACK])
-        self.capture_block(WHITE, captured[WHITE])
+        captured = []
+        for npos in self.neighbors(row, col):
+            if self[npos] == oppcolor and self.blocks[npos].is_captured():
+                captured.extend(self.blocks[npos].members)
+                self.remove_block(npos)
 
-        self.update_ko(oppcolor, row, col, captured)
+        self.update_ko(oppcolor, pos, captured)
 
-        return captured
+        if len(captured) > 0:
+            self.captures[color] += len(captured)
+        elif self.blocks[pos].is_captured():
+            self.captures[oppcolor] += len(self.blocks[pos].members)
+            self.remove_block(pos)
 
-    def update_ko(self, oppcolor, row, col, captured):
-        if len(captured[oppcolor]) == 1:
+    def update_ko(self, oppcolor, pos, captured):
+        if len(self.blocks[pos].members) == 1 and \
+           len(self.blocks[pos].free_neighbors) == 1 and \
+           len(captured) == 1:
             self.ko_color = oppcolor
-            self.ko_move = list(captured[oppcolor])[0]
+            self.ko_move = captured[0]
         else:
             self.ko_color = None
             self.ko_move = None
-
-    def try_place(self, color, row, col):
-        '''Return the stones that will be captured if the given move is made.
-        '''
-        origcolor = self.config[row][col]
-        self.config[row][col] = color
-        oppcolor = opponent(color)
-
-        captured = {BLACK: set(), WHITE: set()}
-        for i, j in self.neighbors(row, col):
-            if self.config[i][j] == oppcolor and (i,j) not in captured[oppcolor]:
-                block = self.try_capture(i, j)
-                captured[oppcolor].update(block)
-
-        if len(captured[oppcolor]) == 0:
-            captured[color] = self.try_capture(row, col)
-
-        self.config[row][col] = origcolor
-        return captured
-
-    def capture(self, row, col):
-        '''Remove the block at (row, col) if it has no liberty.'''
-        color = self.config[row][col]
-        captured_block = try_capture(row, col)
-        self.capture_block(color, captured_block)
-
-    def capture_block(self, color, block):
-        '''Capture the given block.'''
-        self.remove_block(block)
-        self.captures[opponent(color)] += len(block)
-
-    def try_capture(self, row, col):
-        '''Return the block at (row, col) if it has no liberty.'''
-        block = self.get_block(row, col)
-        if self.has_liberty(block):
-            return set()
-        else:
-            return block
 
     def out_of_bounds(self, row, col):
         return row < 0 or row >= self.rows or col < 0 or col >= self.cols
@@ -154,28 +169,48 @@ class Board:
         if col < self.cols-1:
             yield (row, col+1)
 
-    def get_block(self, row, col):
-        color = self.config[row][col]
-        if color == EMPTY:
-            return set()
+    def free_neighbors(self, row, col):
+        for i, j in self.neighbors(row, col):
+            if self.config[i][j] == EMPTY:
+                yield (i, j)
 
-        block = set()
-        positions = [(row, col)]
-        while len(positions) > 0:
-            i, j = positions.pop()
-            if (i, j) not in block and self.config[i][j] == color:
-                block.add((i, j))
-                positions.extend(self.neighbors(i, j))
+    def remove_stone(self, row, col):
+        pos = (row, col)
+        self.config[row][col] = EMPTY
+        self.blocks.pop(pos)
+        for npos in self.neighbors(row, col):
+            if npos in self.blocks:
+                self.blocks[npos].free_neighbors.add(pos)
 
-        return block
+    def remove_block(self, pos):
+        if pos in self.blocks:
+            for i, j in self.blocks[pos].members:
+                self.remove_stone(i, j)
 
-    def has_liberty(self, block):
-        for i, j in block:
-            for ni, nj in self.neighbors(i, j):
-                if self.config[ni][nj] == EMPTY:
-                    return True
-        return False
+    def add_stone(self, color, row, col):
+        self.config[row][col] = color
+        pos = (row, col)
+        oppcolor = opponent(color)
+        for npos in self.neighbors(row, col):
+            if self[npos] == color:
+                if pos not in self.blocks:
+                    self.blocks[npos].add(pos, self.free_neighbors(row, col))
+                    self.blocks[pos] = self.blocks[npos]
+                elif self.blocks[npos] != self.blocks[pos]:
+                    self.join_blocks(npos, pos)
+            elif self[npos] == oppcolor and pos in self.blocks[npos].free_neighbors:
+                self.blocks[npos].free_neighbors.remove(pos)
 
-    def remove_block(self, block):
-        for i, j in block:
-            self.config[i][j] = EMPTY
+        if pos not in self.blocks:
+            self.blocks[pos] = Block()
+            self.blocks[pos].members.add(pos)
+            self.blocks[pos].free_neighbors.update(self.free_neighbors(pos[0], pos[1]))
+
+    def join_blocks(self, p1, p2):
+        b1 = self.blocks[p1]
+        b2 = self.blocks[p2]
+        b1.members.update(b2.members)
+        b1.free_neighbors.update(b2.free_neighbors)
+        b1.free_neighbors.difference_update(b1.members)
+        for p in b2.members:
+            self.blocks[p] = b1
