@@ -111,11 +111,14 @@ class MCTS:
         return outcome
 
     def default_move(self, board, color):
-        positions = list(board.legal_moves(color))
-        if len(positions) > 0:
-            return random.choice(positions)
+        if board.atari_block is not None:
+            return list(board.atari_block.free_neighbors)[0]
         else:
-            return PASS
+            positions = list(board.legal_moves(color))
+            if len(positions) > 0:
+                return random.choice(positions)
+            else:
+                return PASS
 
     def update_tree(self, moves, outcome):
         value = self.score_func(outcome)

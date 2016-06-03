@@ -50,6 +50,7 @@ class Board:
         self.captures = {BLACK: 0, WHITE: 0}
         self.ko_move = None
         self.ko_color = None
+        self.atari_block = None
 
         self.blocks = {}
 
@@ -146,6 +147,8 @@ class Board:
             self.captures[oppcolor] += len(self.blocks[pos].members)
             self.remove_block(pos)
 
+        self.update_atari(oppcolor, pos)
+
     def update_ko(self, oppcolor, pos, captured):
         if len(self.blocks[pos].members) == 1 and \
            len(self.blocks[pos].free_neighbors) == 1 and \
@@ -155,6 +158,17 @@ class Board:
         else:
             self.ko_color = None
             self.ko_move = None
+
+    def update_atari(self, oppcolor, pos):
+        count = 0
+        for npos in self.neighbors(pos[0], pos[1]):
+            if npos in self.blocks:
+                nblock = self.blocks[npos]
+                if nblock.is_in_atari() and len(nblock.members) > count:
+                    count = len(nblock.members)
+                    self.atari_block = nblock
+        if count == 0:
+            self.atari_block = None
 
     def out_of_bounds(self, row, col):
         return row < 0 or row >= self.rows or col < 0 or col >= self.cols
