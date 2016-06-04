@@ -6,7 +6,7 @@ from .atari_mcts import *
 
 class AtariPlayer(Player):
     __name__ = 'omnomnom'
-    __version__ = '0.2-dev'
+    __version__ = '0.2'
 
     def __init__(self, playouts=1000):
         super(AtariPlayer, self).__init__(playouts)
