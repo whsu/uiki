@@ -47,34 +47,34 @@ class Node:
         return sorted(values, key=lambda move:-values[move])
 
 class MCTS:
-    def __init__(self, board, visited, color, num_sims, score_func, exp_const):
-        self.board = board
-        self.visited = visited
-        self.color = color
+    def __init__(self, num_sims, score_func, exp_const):
         self.num_sims = num_sims
         self.score_func = score_func
         self.exp_const = exp_const
-        self.max_depth = board.size()*2
+        self.root = None
 
-    def search(self):
-        root = Node(self.color)
+    def search(self, board, visited, color):
+        max_depth = board.size()*2
+        if self.root is None or self.root.color != color:
+            self.root = Node(color)
 
         for k in range(self.num_sims):
-            board, node, moves, visited, outcome = self.simulate_tree(root)
+            b = copy.deepcopy(board)
+            v = copy.copy(visited)
+            node, moves, outcome = self.simulate_tree(b, v)
             if outcome is None:
-                outcome = self.simulate_default(board, node.color, visited)
-            self.update_tree(root, moves, outcome)
+                outcome = self.simulate_default(b, node.color, v, max_depth)
+            self.update_tree(moves, outcome)
 
-        return root.select_moves(self.board, self.color, 0)
+        return self.root.select_moves(board, self.root.color, 0)
 
-    def simulate_tree(self, node):
-        board = copy.deepcopy(self.board)
-        visited = copy.copy(self.visited)
+    def simulate_tree(self, board, visited):
         moves = []
         outcome = None
 
+        node = self.root
         while node.count > 0 and outcome is None:
-            move = node.select_move(board, self.color, self.exp_const)
+            move = node.select_move(board, self.root.color, self.exp_const)
             moves.append(move)
 
             if move not in node.children:
@@ -86,17 +86,17 @@ class MCTS:
 
             node = child
 
-        return board, node, moves, visited, outcome
+        return node, moves, outcome
 
-    def simulate_default(self, board, color, visited):
+    def simulate_default(self, board, color, visited, max_depth):
         outcome = None
-        while len(visited) < self.max_depth and outcome is None:
+        while len(visited) < max_depth and outcome is None:
             move = self.default_move(board, color)
             outcome = self.place_move(board, color, move, visited)
             color = opponent(color)
 
         if outcome is None:
-            return board.score(self.color)
+            return board.score(self.root.color)
         else:
             return outcome
 
@@ -111,19 +111,31 @@ class MCTS:
         return outcome
 
     def default_move(self, board, color):
-        positions = list(board.legal_moves(color))
-        if len(positions) > 0:
-            return random.choice(positions)
+        if board.atari_block is not None:
+            return list(board.atari_block.free_neighbors)[0]
         else:
-            return PASS
+            positions = list(board.legal_moves(color))
+            if len(positions) > 0:
+                return random.choice(positions)
+            else:
+                return PASS
 
-    def update_tree(self, root, moves, outcome):
+    def update_tree(self, moves, outcome):
         value = self.score_func(outcome)
-        root.update(value)
-        node = root
+        self.root.update(value)
+        node = self.root
         for move in moves:
             node = node.children[move]
             node.update(value)
 
     def repeat_outcome(self, color):
-        return -self.board.size() if color==self.color else self.board.size()
+        return -1 if color==self.root.color else 1
+
+    def move_root(self, color, move):
+        if self.root is None:
+            return
+
+        if color == self.root.color and move in self.root.children:
+            self.root = self.root.children[move]
+        else:
+            self.root = None

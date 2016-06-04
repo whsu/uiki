@@ -8,7 +8,8 @@ E = EMPTY
 
 class TestPlayer(unittest.TestCase):
     def test_place_move(self):
-        player = Player(2, 3, suicide_allowed=False)
+        player = Player()
+        player.new_game(rows=2, cols=3, suicide_allowed=False)
         result = player.place_move(BLACK, 1, 2)
 
         self.assertTrue(result)

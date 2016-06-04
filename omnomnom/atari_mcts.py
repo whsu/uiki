@@ -1,10 +1,8 @@
 from uiki.mcts import *
 
 class AtariMCTS(MCTS):
-    def __init__(self, board, visited, color, num_sims, score_func, exp_const,
-                       num_caps):
-        super(AtariMCTS, self).__init__(
-                  board, visited, color, num_sims, score_func, exp_const)
+    def __init__(self, num_sims, score_func, exp_const, num_caps):
+        super(AtariMCTS, self).__init__(num_sims, score_func, exp_const)
         self.num_caps = num_caps
 
     def place_move(self, board, color, move, visited):
@@ -23,4 +21,4 @@ class AtariMCTS(MCTS):
         return outcome
 
     def win_outcome(self, color):
-        return self.board.size() if color==self.color else -self.board.size()
+        return 1 if color==self.root.color else -1
