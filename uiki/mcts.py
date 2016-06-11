@@ -38,6 +38,9 @@ class Node:
                 values[pos] = c * math.sqrt(math.log(self.count+1))
         return values
 
+    def move_num_sims(self):
+        return {pos:self.children[pos].count for pos in self.children}
+
     def select_move(self, board, root_color, c):
         values = self.move_values(board, root_color, c)
         return max(values, key=lambda move:values[move])
@@ -45,6 +48,13 @@ class Node:
     def select_moves(self, board, root_color, c):
         values = self.move_values(board, root_color, c)
         return sorted(values, key=lambda move:-values[move])
+
+    def max_sims(self, root_color):
+        num_sims = self.move_num_sims()
+        if self.color == root_color:
+            return sorted(num_sims, key=lambda move:-num_sims[move])
+        else:
+            return sorted(num_sims, key=lambda move:num_sims[move])
 
 class MCTS:
     def __init__(self, num_sims, score_func, exp_const):
@@ -66,7 +76,7 @@ class MCTS:
                 outcome = self.simulate_default(b, node.color, v, max_depth)
             self.update_tree(moves, outcome)
 
-        return self.root.select_moves(board, self.root.color, 0)
+        return self.root.max_sims(self.root.color)
 
     def simulate_tree(self, board, visited):
         moves = []
